@@ -1,6 +1,6 @@
 # depslib dependency file v1.0
-1740856529 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
+1742380693 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
 	<iostream>
 	<SDL.h>
-	<SDL_image.h>
+	<vector>
 
