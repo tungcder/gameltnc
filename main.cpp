@@ -201,17 +201,17 @@ SDL_Texture* loadTexture(const std::string& path) {
 }
 
 bool loadMedia() {
-    gMusic = Mix_LoadMUS("intro.mp3");
+    gMusic = Mix_LoadMUS("sound/intro.mp3");
     if (!gMusic) {
         std::cout << "Failed to load intro music! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
     }
-    gBulletHitSound = Mix_LoadWAV("noo.wav");
+    gBulletHitSound = Mix_LoadWAV("sound/noo.wav");
     if (!gBulletHitSound) {
         std::cout << "Failed to load bullet hit sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
     }
-    gGameOverSound = Mix_LoadWAV("gameover.wav");
+    gGameOverSound = Mix_LoadWAV("sound/gameover.wav");
     if (!gGameOverSound) {
         std::cout << "Failed to load game over sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
@@ -244,10 +244,10 @@ void renderMap() {
             SDL_Texture* texture = nullptr;
 
             switch (map[row][col]) {
-                case BRICK: texture = getTexture("wall1.png"); break;
-                case STEEL: texture = getTexture("wall2.png"); break;
-                case WATER: texture = getTexture("water.png"); break;
-                case TREE:  texture = getTexture("tree.png"); break;
+                case BRICK: texture = getTexture("image/wall1.png"); break;
+                case STEEL: texture = getTexture("image/wall2.png"); break;
+                case WATER: texture = getTexture("image/water.png"); break;
+                case TREE:  texture = getTexture("image/tree.png"); break;
                 default: break;
             }
 
@@ -259,18 +259,18 @@ void renderMap() {
 }
 
 void renderMenu() {
-    SDL_RenderCopy(gRenderer, getTexture("background.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/background.png"), nullptr, nullptr);
     for (const auto& button : buttons) {
         SDL_RenderCopy(gRenderer, button.texture, nullptr, &button.rect);
     }
 }
 
 void renderWin() {
-    SDL_RenderCopy(gRenderer, getTexture("win.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/win.png"), nullptr, nullptr);
 }
 
 void renderLose() {
-    SDL_RenderCopy(gRenderer, getTexture("lose.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/lose.png"), nullptr, nullptr);
 }
 
 void handleMenuInput(const SDL_Event& e) {
@@ -284,15 +284,15 @@ void handleMenuInput(const SDL_Event& e) {
                 if (i == 0) {
                     gameState = GAME;
                     enemyTanks.clear();
-                    gTextureCache["Tank.png"] = loadTexture("Tank.png");
-                    gTextureCache["Tank1.png"] = loadTexture("Tank1.png");
+                    gTextureCache["image/Tank.png"] = loadTexture("image/Tank.png");
+                    gTextureCache["image/Tank1.png"] = loadTexture("image/Tank1.png");
                     int numEnemies = 3;
                     for (int i = 0; i < numEnemies; i++) {
                         float enemyX, enemyY;
                         enemyX = (float)TILE_SIZE * (MAP_COLS - 2 - i * 3);
                         enemyY = (float)TILE_SIZE * (1 + i * 2);
                         Tank enemyTank1 = {enemyX, enemyY, NONE, 0, nullptr, DOWN, enemyX, enemyY, false, 0, 0, true};
-                        enemyTank1.texture = getTexture("Tank1.png");
+                        enemyTank1.texture = getTexture("image/Tank1.png");
                         enemyTanks.push_back(enemyTank1);
                     }
                     playerTank.x = (float)TILE_SIZE;
@@ -301,7 +301,7 @@ void handleMenuInput(const SDL_Event& e) {
                     playerTank.lastValidDirection = DOWN;
                     playerTank.active = true;
                     Mix_HaltMusic();
-                    Mix_Music* gameStartMusic = Mix_LoadMUS("intro1.wav");
+                    Mix_Music* gameStartMusic = Mix_LoadMUS("sound/intro1.wav");
                     if (gameStartMusic) {
                         Mix_PlayMusic(gameStartMusic, -1);
                         Mix_FreeMusic(gameStartMusic);
@@ -463,7 +463,7 @@ void updateExplosions() {
 }
 
 void renderExplosions() {
-    SDL_Texture* explosionTexture = getTexture("no.png");
+    SDL_Texture* explosionTexture = getTexture("image/no.png");
     if (!explosionTexture) return;
 
     for (const auto& explosion : explosions) {
@@ -490,7 +490,7 @@ void createBullet(Tank& tank) {
     newBullet.x = tank.x + TANK_SIZE / 2 - BULLET_WIDTH / 2;
     newBullet.y = tank.y + TANK_SIZE / 2 - BULLET_HEIGHT / 2;
     newBullet.direction = (tank.direction == NONE) ? tank.lastValidDirection : tank.direction;
-    newBullet.texture = getTexture("bullet.png");
+    newBullet.texture = getTexture("image/bullet.png");
     newBullet.active = true;
     newBullet.isPlayerBullet = tank.isPlayer;
 
@@ -556,7 +556,7 @@ void updateBullets() {
 }
 
 void renderBullets() {
-    SDL_Texture* bulletTexture = getTexture("bullet.png");
+    SDL_Texture* bulletTexture = getTexture("image/bullet.png");
 
     for (const auto& bullet : bullets) {
         if (bullet.active && bulletTexture) {
@@ -723,11 +723,11 @@ int main(int argc, char* args[]) {
     }
     Mix_PlayMusic(gMusic, -1);
 
-    buttons[0].texture = getTexture("1player.png");
-    buttons[1].texture = getTexture("2player.png");
-    buttons[2].texture = getTexture("exit.png");
+    buttons[0].texture = getTexture("image/1player.png");
+    buttons[1].texture = getTexture("image/2player.png");
+    buttons[2].texture = getTexture("image/exit.png");
 
-    std::string playerPath = "Tank.png";
+    std::string playerPath = "image/Tank.png";
     gTextureCache[playerPath] = loadTexture(playerPath.c_str());
     playerTank.texture = gTextureCache[playerPath];
     if (!playerTank.texture) {
@@ -735,27 +735,27 @@ int main(int argc, char* args[]) {
         close();
         return -1;
     }
-    SDL_Texture* bulletTexture = getTexture("bullet.png");
+    SDL_Texture* bulletTexture = getTexture("image/bullet.png");
     if (!bulletTexture) {
         std::cout << "Failed to load bullet sprite sheet!" << std::endl;
         close();
         return -1;
     }
-        SDL_Texture* explosionTexture = getTexture("no.png");
+        SDL_Texture* explosionTexture = getTexture("image/no.png");
     if (!explosionTexture) {
         std::cout << "Failed to load explosion sprite sheet!" << std::endl;
         close();
         return -1;
     }
 
-    SDL_Texture* winTexture = getTexture("win.png");
+    SDL_Texture* winTexture = getTexture("image/win.png");
     if (!winTexture) {
         std::cout << "Failed to load win image!" << std::endl;
         close();
         return -1;
     }
 
-    SDL_Texture* loseTexture = getTexture("lose.png");
+    SDL_Texture* loseTexture = getTexture("image/lose.png");
     if (!loseTexture) {
         std::cout << "Failed to load lose image!" << std::endl;
         close();
