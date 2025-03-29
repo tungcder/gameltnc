@@ -1,6 +1,8 @@
 #include <SDL.h>
+#include <iomanip>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <SDL_ttf.h>
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -8,6 +10,7 @@
 #include <ctime>
 #include <algorithm>
 #include <cstdlib>
+#include <sstream>
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -31,6 +34,7 @@ const int PLAYER_SPRITE_WIDTH = 40;
 const int PLAYER_SPRITE_HEIGHT = 40;
 const int ENEMY_SPRITE_WIDTH = 40;
 const int ENEMY_SPRITE_HEIGHT = 40;
+const int PLAYER_LIVES = 2; // Số mạng của người chơi
 
 enum TileType { EMPTY, BRICK, STEEL, WATER, TREE };
 enum GameState { MENU, GAME, WIN, LOSE };
@@ -72,23 +76,25 @@ struct Explosion {
 SDL_Window* gWindow = nullptr;
 SDL_Renderer* gRenderer = nullptr;
 std::unordered_map<std::string, SDL_Texture*> gTextureCache;
+TTF_Font* gFont = nullptr;  // Font để hiển thị số mạng
+SDL_Color gTextColor = { 0, 0, 0 }; // Màu chữ trắng
 
 int map[MAP_ROWS][MAP_COLS] = {
-    {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-    {2, 0, 1, 1, 1, 0, 3, 3, 0, 1, 1, 0, 3, 3, 0, 1, 1, 1, 0, 2},
-    {2, 0, 1, 0, 1, 0, 3, 3, 0, 0, 0, 0, 3, 3, 0, 1, 0, 1, 0, 2},
-    {2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 2},
-    {2, 0, 1, 0, 1, 0, 0, 0, 0, 4, 4, 0, 0, 0, 0, 1, 0, 1, 0, 2},
-    {2, 0, 0, 0, 0, 0, 0, 0, 1, 4, 4, 1, 0, 0, 0, 0, 0, 0, 0, 2},
-    {2, 0, 2, 2, 2, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 2, 2, 2, 0, 2},
-    {2, 0, 2, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 2, 0, 2, 0, 2},
-    {2, 0, 2, 0, 2, 2, 0, 2, 1, 1, 1, 1, 2, 0, 2, 2, 0, 2, 0, 2},
-    {2, 0, 2, 0, 2, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 2, 0, 2, 0, 2},
-    {2, 0, 2, 0, 2, 0, 2, 2, 1, 0, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2},
-    {2, 0, 0, 0, 0, 0, 2, 0, 1, 1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 2},
-    {2, 0, 1, 1, 1, 0, 2, 0, 1, 0, 0, 1, 0, 2, 1, 1, 1, 0, 0, 2},
-    {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
+    {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
+    {2,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,2},
+    {2,0,3,3,0,0,4,4,0,0,0,0,0,4,4,0,3,3,0,2},
+    {2,0,3,3,0,1,1,4,0,2,2,2,0,4,1,1,0,3,3,2},
+    {2,0,0,0,0,1,0,0,0,2,2,2,0,0,0,1,0,0,0,2},
+    {2,1,1,1,0,1,4,4,0,0,0,0,0,4,4,1,0,1,1,2},
+    {2,0,0,0,0,1,4,4,0,1,1,1,0,4,4,1,0,0,0,2},
+    {2,0,3,3,0,0,0,0,0,1,0,1,0,0,0,0,0,3,3,2},
+    {2,0,3,3,0,1,1,1,0,1,0,1,0,1,1,1,0,3,3,2},
+    {2,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,2},
+    {2,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,2},
+    {2,0,0,0,0,1,4,4,4,4,4,4,4,4,4,1,0,0,0,2},
+    {2,0,3,3,0,0,0,0,0,1,0,1,0,0,0,0,0,3,3,2},
+    {2,0,3,3,0,1,1,1,0,1,0,1,0,1,1,1,0,3,3,2},
+    {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
 };
 
 std::vector<Explosion> explosions;
@@ -115,6 +121,8 @@ Tank playerTank = {
     true
 };
 
+int playerLives = PLAYER_LIVES; // Số mạng ban đầu của người chơi
+
 std::vector<Bullet> bullets;
 Uint32 lastBulletTime = 0;
 
@@ -138,7 +146,7 @@ void renderGame();
 void createBullet(Tank& tank);
 void updateBullets();
 void renderBullets();
-bool isValidMove(float x, float y, int width, int height);
+bool isValidMove(float x, float y, int width, int height, Tank* currentTank = nullptr);
 bool isTileBlocked(int row, int col);
 void createExplosion(float x, float y);
 void updateExplosions();
@@ -147,6 +155,8 @@ Direction getRandomDirection();
 void updateAITanks();
 void moveAITank(Tank& tank);
 bool checkCollision(float x1, float y1, int w1, int h1, float x2, float y2, int w2, int h2);
+void resetPlayerPosition(); // Hàm đặt lại vị trí người chơi
+void renderLives(SDL_Renderer* renderer, int lives); // Hàm hiển thị số mạng
 
 bool loadMedia();
 
@@ -184,9 +194,22 @@ bool init() {
         std::cout << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
     }
+
+    // Initialize SDL_ttf
+    if (TTF_Init() == -1) {
+        std::cout << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    gFont = TTF_OpenFont("font/Hack.ttf", 24);  // Thay "font/Hack.ttf" bằng đường dẫn đến font của bạn
+    if (gFont == nullptr) {
+        std::cout << "Failed to load font! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
     srand(time(NULL));
     return true;
 }
+
 SDL_Texture* loadTexture(const std::string& path) {
     SDL_Texture* newTexture = nullptr;
     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
@@ -230,6 +253,8 @@ void close() {
     gGameOverSound = nullptr;
     Mix_FreeMusic(gMusic);
     gMusic = nullptr;
+    TTF_CloseFont(gFont); // Giải phóng font
+    TTF_Quit();
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
     Mix_Quit();
@@ -286,7 +311,7 @@ void handleMenuInput(const SDL_Event& e) {
                     enemyTanks.clear();
                     gTextureCache["image/Tank.png"] = loadTexture("image/Tank.png");
                     gTextureCache["image/Tank1.png"] = loadTexture("image/Tank1.png");
-                    int numEnemies = 3;
+                    int numEnemies = 4;
                     for (int i = 0; i < numEnemies; i++) {
                         float enemyX, enemyY;
                         enemyX = (float)TILE_SIZE * (MAP_COLS - 2 - i * 3);
@@ -295,8 +320,8 @@ void handleMenuInput(const SDL_Event& e) {
                         enemyTank1.texture = getTexture("image/Tank1.png");
                         enemyTanks.push_back(enemyTank1);
                     }
-                    playerTank.x = (float)TILE_SIZE;
-                    playerTank.y = (float)TILE_SIZE;
+                    resetPlayerPosition(); // Đặt lại vị trí xe tăng người chơi khi bắt đầu game
+                    playerLives = PLAYER_LIVES;
                     playerTank.direction = NONE;
                     playerTank.lastValidDirection = DOWN;
                     playerTank.active = true;
@@ -362,7 +387,8 @@ void handleGameInput(const SDL_Event& e) {
         }
     }
 }
-bool isValidMove(float x, float y, int width, int height) {
+
+bool isValidMove(float x, float y, int width, int height, Tank* currentTank) {
     int topLeftX = (int)floor(x / TILE_SIZE);
     int topLeftY = (int)floor(y / TILE_SIZE);
     int topRightX = (int)floor((x + width - 1) / TILE_SIZE);
@@ -371,11 +397,36 @@ bool isValidMove(float x, float y, int width, int height) {
     int bottomLeftY = (int)floor((y + height - 1) / TILE_SIZE);
     int bottomRightX = (int)floor((x + width - 1) / TILE_SIZE);
     int bottomRightY = (int)floor((y + height - 1) / TILE_SIZE);
+
     if (isTileBlocked(topLeftY, topLeftX) ||
         isTileBlocked(topRightY, topRightX) ||
         isTileBlocked(bottomLeftY, bottomLeftX) ||
         isTileBlocked(bottomRightY, bottomRightX)) {
         return false;
+    }
+
+    // Kiểm tra va chạm với xe tăng khác
+    if (currentTank->isPlayer) {
+        for (auto& enemyTank : enemyTanks) {
+            if (!enemyTank.active) continue;
+            if (&enemyTank == currentTank) continue; // Bỏ qua kiểm tra với chính nó
+
+            if (checkCollision(x, y, width, height, enemyTank.x, enemyTank.y, TANK_SIZE, TANK_SIZE)) {
+                return false;
+            }
+        }
+    } else {
+        if (playerTank.active && checkCollision(x, y, width, height, playerTank.x, playerTank.y, TANK_SIZE, TANK_SIZE)) {
+            return false;
+        }
+        for (auto& enemyTank : enemyTanks) {
+            if (!enemyTank.active) continue;
+            if (&enemyTank == currentTank) continue; // Bỏ qua kiểm tra với chính nó
+
+            if (checkCollision(x, y, width, height, enemyTank.x, enemyTank.y, TANK_SIZE, TANK_SIZE)) {
+                return false;
+            }
+        }
     }
     return true;
 }
@@ -393,6 +444,11 @@ bool checkCollision(float x1, float y1, int w1, int h1, float x2, float y2, int 
             y1 + h1 > y2);
 }
 
+void resetPlayerPosition() {
+    playerTank.x = (float)TILE_SIZE;
+    playerTank.y = (float)TILE_SIZE;
+}
+
 void updateGame() {
     if (gameState == GAME) {
         updatePlayerTank();
@@ -403,7 +459,7 @@ void updateGame() {
             Mix_HaltMusic();
             Mix_PlayChannel(-1, gGameOverSound, 0);
         }
-        if(!playerTank.active){
+        if (playerLives <= 0) {
             gameState = LOSE;
             Mix_HaltMusic();
             Mix_PlayChannel(-1, gGameOverSound, 0);
@@ -425,7 +481,7 @@ void updatePlayerTank() {
         case NONE:  break;
     }
 
-    if (isValidMove(newX, newY, TANK_SIZE, TANK_SIZE)) {
+    if (isValidMove(newX, newY, TANK_SIZE, TANK_SIZE, &playerTank)) {
         playerTank.x = newX;
         playerTank.y = newY;
     } else {
@@ -546,6 +602,11 @@ void updateBullets() {
                 bullet.active = false;
                 createExplosion(playerTank.x, playerTank.y);
                 playerTank.active = false;
+                playerLives--; // Giảm số mạng khi xe tăng người chơi bị bắn
+                if (playerLives > 0) {
+                    resetPlayerPosition(); // Đặt lại vị trí nếu còn mạng
+                    playerTank.active = true;
+                }
                 Mix_PlayChannel(-1, gBulletHitSound, 0);
             }
         }
@@ -619,7 +680,7 @@ void moveAITank(Tank& tank) {
         case NONE:  break;
     }
 
-    if (isValidMove(newX, newY, TANK_SIZE, TANK_SIZE)) {
+    if (isValidMove(newX, newY, TANK_SIZE, TANK_SIZE, &tank)) {
         tank.x = newX;
         tank.y = newY;
     } else {
@@ -646,6 +707,36 @@ void updateAITanks() {
             createBullet(tank);
         }
     }
+}
+
+void renderLives(SDL_Renderer* renderer, int lives) {
+    std::stringstream ss;
+    ss << "Lives: " << lives;
+    std::string livesText = ss.str();
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, livesText.c_str(), gTextColor);
+    if (textSurface == nullptr) {
+        std::cout << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (textTexture == nullptr) {
+        std::cout << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+
+    SDL_Rect textRect;
+    textRect.x = 10;
+    textRect.y = 10;
+    textRect.w = textSurface->w;
+    textRect.h = textSurface->h;
+
+    SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
+
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
 }
 
 void renderGame() {
@@ -708,6 +799,7 @@ void renderGame() {
     renderBullets();
     updateExplosions();
     renderExplosions();
+    renderLives(gRenderer, playerLives); // Hiển thị số mạng của người chơi
 }
 
 int main(int argc, char* args[]) {

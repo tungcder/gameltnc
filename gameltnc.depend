@@ -1,8 +1,10 @@
 # depslib dependency file v1.0
-1743218854 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
+1743246107 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
 	<SDL.h>
+	<iomanip>
 	<SDL_image.h>
 	<SDL_mixer.h>
+	<SDL_ttf.h>
 	<iostream>
 	<vector>
 	<unordered_map>
@@ -10,6 +12,7 @@
 	<ctime>
 	<algorithm>
 	<cstdlib>
+	<sstream>
 
 1743081214 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\game.h
 	<SDL.h>
