@@ -1,6 +1,38 @@
 # depslib dependency file v1.0
-1742380693 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
+1743213389 source:c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
 	<iostream>
+	<vector>
+	<unordered_map>
+	<cmath>
+	<ctime>
+	<algorithm>
+	<cstdlib>
+
+1743081214 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\game.h
+	<SDL.h>
+	<SDL_image.h>
+	<vector>
+	"Map.h"
+	"Tank.h"
+
+1743081214 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\map.h
 	<SDL.h>
 	<vector>
+	<string>
+	"Wall.h"
+
+1743081214 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\wall.h
+	"Sprite.h"
+	<SDL.h>
+
+1743081214 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\sprite.h
+	<SDL.h>
+	<string>
+
+1743081262 c:\users\tung\onedrive - vnu.edu.vn\desktop\gameltnc\tank.h
+	"Sprite.h"
+	<SDL.h>
 
