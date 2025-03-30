@@ -23,5 +23,6 @@ const int PLAYER_SPRITE_WIDTH = 40;
 const int PLAYER_SPRITE_HEIGHT = 40;
 const int ENEMY_SPRITE_WIDTH = 40;
 const int ENEMY_SPRITE_HEIGHT = 40;
+const int PLAYER_LIVES = 2; // Số mạng của người chơi
 
 #endif

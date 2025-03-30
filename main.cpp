@@ -229,12 +229,12 @@ bool loadMedia() {
         std::cout << "Failed to load intro music! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
     }
-    gBulletHitSound = Mix_LoadWAV("sound/noo.wav");
+    gBulletHitSound = Mix_LoadWAV("sound/no.wav");
     if (!gBulletHitSound) {
         std::cout << "Failed to load bullet hit sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
     }
-    gGameOverSound = Mix_LoadWAV("sound/gameover.wav");
+    gGameOverSound = Mix_LoadWAV("sound/end.wav");
     if (!gGameOverSound) {
         std::cout << "Failed to load game over sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
         return false;
@@ -269,10 +269,10 @@ void renderMap() {
             SDL_Texture* texture = nullptr;
 
             switch (map[row][col]) {
-                case BRICK: texture = getTexture("image/wall1.png"); break;
-                case STEEL: texture = getTexture("image/wall2.png"); break;
-                case WATER: texture = getTexture("image/water.png"); break;
-                case TREE:  texture = getTexture("image/tree.png"); break;
+                case BRICK: texture = getTexture("image/Wall1.png"); break;
+                case STEEL: texture = getTexture("image/Wall2.png"); break;
+                case WATER: texture = getTexture("image/Water.png"); break;
+                case TREE:  texture = getTexture("image/Tree.png"); break;
                 default: break;
             }
 
@@ -284,18 +284,18 @@ void renderMap() {
 }
 
 void renderMenu() {
-    SDL_RenderCopy(gRenderer, getTexture("image/background.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/Background.png"), nullptr, nullptr);
     for (const auto& button : buttons) {
         SDL_RenderCopy(gRenderer, button.texture, nullptr, &button.rect);
     }
 }
 
 void renderWin() {
-    SDL_RenderCopy(gRenderer, getTexture("image/win.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/Win.png"), nullptr, nullptr);
 }
 
 void renderLose() {
-    SDL_RenderCopy(gRenderer, getTexture("image/lose.png"), nullptr, nullptr);
+    SDL_RenderCopy(gRenderer, getTexture("image/Lose.png"), nullptr, nullptr);
 }
 
 void handleMenuInput(const SDL_Event& e) {
@@ -311,7 +311,7 @@ void handleMenuInput(const SDL_Event& e) {
                     enemyTanks.clear();
                     gTextureCache["image/Tank.png"] = loadTexture("image/Tank.png");
                     gTextureCache["image/Tank1.png"] = loadTexture("image/Tank1.png");
-                    int numEnemies = 4;
+                    int numEnemies = 5;
                     for (int i = 0; i < numEnemies; i++) {
                         float enemyX, enemyY;
                         enemyX = (float)TILE_SIZE * (MAP_COLS - 2 - i * 3);
@@ -519,7 +519,7 @@ void updateExplosions() {
 }
 
 void renderExplosions() {
-    SDL_Texture* explosionTexture = getTexture("image/no.png");
+    SDL_Texture* explosionTexture = getTexture("image/No.png");
     if (!explosionTexture) return;
 
     for (const auto& explosion : explosions) {
@@ -546,7 +546,7 @@ void createBullet(Tank& tank) {
     newBullet.x = tank.x + TANK_SIZE / 2 - BULLET_WIDTH / 2;
     newBullet.y = tank.y + TANK_SIZE / 2 - BULLET_HEIGHT / 2;
     newBullet.direction = (tank.direction == NONE) ? tank.lastValidDirection : tank.direction;
-    newBullet.texture = getTexture("image/bullet.png");
+    newBullet.texture = getTexture("image/Bullet.png");
     newBullet.active = true;
     newBullet.isPlayerBullet = tank.isPlayer;
 
@@ -617,7 +617,7 @@ void updateBullets() {
 }
 
 void renderBullets() {
-    SDL_Texture* bulletTexture = getTexture("image/bullet.png");
+    SDL_Texture* bulletTexture = getTexture("image/Bullet.png");
 
     for (const auto& bullet : bullets) {
         if (bullet.active && bulletTexture) {
@@ -711,7 +711,7 @@ void updateAITanks() {
 
 void renderLives(SDL_Renderer* renderer, int lives) {
     std::stringstream ss;
-    ss << "Lives: " << lives;
+    ss << "LIVES: " << lives;
     std::string livesText = ss.str();
 
     SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, livesText.c_str(), gTextColor);
@@ -827,27 +827,27 @@ int main(int argc, char* args[]) {
         close();
         return -1;
     }
-    SDL_Texture* bulletTexture = getTexture("image/bullet.png");
+    SDL_Texture* bulletTexture = getTexture("image/Bullet.png");
     if (!bulletTexture) {
         std::cout << "Failed to load bullet sprite sheet!" << std::endl;
         close();
         return -1;
     }
-        SDL_Texture* explosionTexture = getTexture("image/no.png");
+        SDL_Texture* explosionTexture = getTexture("image/No.png");
     if (!explosionTexture) {
         std::cout << "Failed to load explosion sprite sheet!" << std::endl;
         close();
         return -1;
     }
 
-    SDL_Texture* winTexture = getTexture("image/win.png");
+    SDL_Texture* winTexture = getTexture("image/Win.png");
     if (!winTexture) {
         std::cout << "Failed to load win image!" << std::endl;
         close();
         return -1;
     }
 
-    SDL_Texture* loseTexture = getTexture("image/lose.png");
+    SDL_Texture* loseTexture = getTexture("image/Lose.png");
     if (!loseTexture) {
         std::cout << "Failed to load lose image!" << std::endl;
         close();

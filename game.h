@@ -3,31 +3,31 @@
 
 #include <SDL.h>
 #include <vector>
-#include <unordered_map>
-#include "constants.h"
-#include "enum.h"
+#include "enums.h"
 #include "structs.h"
 
-extern SDL_Renderer* gRenderer;  // Khai báo extern vì gRenderer được định nghĩa ở main.cpp
-extern std::unordered_map<std::string, SDL_Texture*> gTextureCache;
-extern int map[MAP_ROWS][MAP_COLS];
+// Forward declarations
+struct Tank;
+struct Bullet;
+struct Explosion;
+
 extern std::vector<Explosion> explosions;
 extern std::vector<Tank> enemyTanks;
-extern GameState gameState;
 extern Tank playerTank;
 extern std::vector<Bullet> bullets;
 extern Uint32 lastBulletTime;
+extern int playerLives;
 
-bool isValidMove(float x, float y, int width, int height, Tank* currentTank = nullptr);
-bool isTileBlocked(int row, int col);
 bool checkCollision(float x1, float y1, int w1, int h1, float x2, float y2, int w2, int h2);
-void updateGame();
-void updatePlayerTank();
-void createBullet(Tank& tank);
-void updateBullets();
+bool isValidMove(float x, float y, int width, int height, Tank* currentTank = nullptr);
+void createBullet(Tank& tank, SDL_Renderer* renderer);
+void updateBullets(SDL_Renderer* renderer);
 void createExplosion(float x, float y);
 void updateExplosions();
+void updateAITanks(SDL_Renderer* renderer);
+void moveAITank(Tank& tank);
 Direction getRandomDirection();
-void updateAITanks();
+void resetPlayerPosition();
+void updatePlayerTank();
 
 #endif
